@@ -1,0 +1,7 @@
+{
+    "C_Cpp.errorSquiggles": "EnabledIfIncludesResolve",
+    "C_Cpp.default.configurationProvider": "",
+    "C_Cpp.default.includePath": [
+        "./include"
+    ],
+}
