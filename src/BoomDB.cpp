@@ -28,9 +28,4 @@ bool BoomDB::parse_meta_commad(std::string input_str) {
   return false;
 }
 
-// int main(int argc, char *argv[]) {
-//   DB db;
-//   db.start();
-//   return 0;
-// }
 } // namespace BoomDB

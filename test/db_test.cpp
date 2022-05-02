@@ -15,4 +15,15 @@ TEST(BoomTest, Start) {
   //   ans = boom.parse_meta_commad(".exit");
   //   EXPECT_TRUE(ans);
 }
+
+class BoomDBTest : public ::testing::Test {
+protected:
+  void SetUp() override {}
+
+  void TearDown() override {}
+};
+
+TEST_F(BoomDBTest, Start) {
+  
+}
 } // namespace BoomDB
