@@ -14,6 +14,9 @@ public:
   uint32 get_overflow();
   uint32 get_ptr();
 
+  void set_count(uint16);
+  void set_flags(PageFlags);
+
 private:
   uint64 page_id_;  // 页号
   uint16 flags_;    // 表明该页属于哪一种page
