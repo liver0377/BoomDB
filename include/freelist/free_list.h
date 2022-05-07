@@ -4,8 +4,8 @@
 #include "type.h"
 #include <algorithm>
 #include <map>
-#include <vector>
 #include <stdexcept>
+#include <vector>
 
 namespace BoomDB {
 class Freelist {
@@ -20,10 +20,22 @@ public:
   /** @return pending 状态的page个数 */
   int getPendingCount();
 
-  void Write(Page *p);
-  void Read(Page *p);
+  void Write(Page *);
+  void Read(Page *);
   void Reindex();
-  pgid Allocate(int n);
+  void Free(txid, Page *);
+  void Release(txid);
+  void Rollback(txid);
+  void Reload(Page *);
+
+  pgid Allocate(int);
+
+  bool freed(pgid);
+
+  // 测试函数
+  pgids getPending(txid);
+  pgids getIds();
+  void  setIds(pgids);
 
 private:
   /** @brief 将freelist中的ids以及pending全部拷贝到dst中 */

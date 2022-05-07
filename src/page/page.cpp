@@ -1,6 +1,11 @@
 #include "page/page.h"
 
 namespace BoomDB {
+Page::Page(uint64 page_id, uint16 flags, uint16 count, uint32 overflow,
+           uint32 ptr)
+    : page_id_(page_id), flags_(flags), count_(count), overflow_(overflow),
+      ptr_(ptr) {}
+
 /** 获取Page的内部成员 */
 uint64 Page::get_page_id() { return page_id_; }
 uint16 Page::get_flags() { return flags_; }

@@ -8,6 +8,7 @@ enum PageFlags { BRANCH_PAGE, LEAF_PAGE, META_PAGE, FREE_LIST_PAGE };
 // 64 + 16 + 16 + 32 + 32 = 160 bit
 class Page {
 public:
+  Page(uint64 page_id, uint16 flags, uint16 count, uint32 overflow, uint32 ptr);
   uint64 get_page_id();
   uint16 get_flags();
   uint16 get_count();

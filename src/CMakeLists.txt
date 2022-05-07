@@ -1,13 +1,6 @@
-# include_directories(./include)
+# 找到src/*/下的所有cpp文件
+file(GLOB_RECURSE BoomDB_sources ${PROJECT_SOURCE_DIR}/src/*/*.cpp)
 
-aux_source_directory(${BoomDB_SOURCE_DIR}/include/ HEADER_LIST)
-# set(HEADER_LIST ${BoomDB_SOURCE_DIR}/include/BoomDB.h)
-
-# 生成库，这里会根据用户设置自行设置为静态库或者动态库
-add_library(BoomDB_library BoomDB.cpp ${HEADER_LIST})
-
-target_include_directories(BoomDB_library PUBLIC ../include)
-
-target_compile_features(BoomDB_library PUBLIC cxx_std_11)
-
+# 生成BoomDB_library 共享库
+add_library(BoomDB_library SHARED ${BoomDB_sources})
 

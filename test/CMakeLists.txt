@@ -1,9 +1,12 @@
-add_executable(testlib db_test.cpp)
+aux_source_directory(. TEST_LIST)
 
-target_compile_features(testlib PRIVATE cxx_std_14)
+add_executable(testlib ${TEST_LIST})
+
+# include 目录
+target_include_directories(testlib PRIVATE ../include)
 
 # 链接gtest, BoomDB
 target_link_libraries(testlib PRIVATE BoomDB_library gtest_main pthread)
 
-add_test(NAME testlibtest COMMAND testlib)
+
 
