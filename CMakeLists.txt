@@ -24,4 +24,7 @@ add_subdirectory(src)
   add_subdirectory(test)
 # endif()
 
+enable_testing()
+
+add_test(NAME BoomDB_test COMMAND ./bin/testlib)
 

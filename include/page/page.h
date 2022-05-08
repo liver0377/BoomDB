@@ -13,17 +13,22 @@ public:
   uint16 get_flags();
   uint16 get_count();
   uint32 get_overflow();
-  uint32 get_ptr();
+  // 这里必须得使用引用，因为后续很多操作都需要使用到ptr的地址
+  uint32 &get_ptr();
 
+  // 测试使用
   void set_count(uint16);
   void set_flags(PageFlags);
+  void set_page_id(uint64);
+  void set_overflow(uint32);
+  void set_ptr(uint32);
 
 private:
   uint64 page_id_;  // 页号
   uint16 flags_;    // 表明该页属于哪一种page
   uint16 count_;    // page当中存储了多少个记录
   uint32 overflow_; // 溢出页
-  uint32 ptr_;      // 指向数据
+  uint32 ptr_; // ptr_后面的内容就是page的数据, 在实际使用中会使用到&ptr
 };
 
 /**

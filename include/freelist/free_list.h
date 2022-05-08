@@ -3,6 +3,7 @@
 #include "page/page.h"
 #include "type.h"
 #include <algorithm>
+#include <iostream>
 #include <map>
 #include <stdexcept>
 #include <vector>
@@ -35,11 +36,12 @@ public:
   // 测试函数
   pgids getPending(txid);
   pgids getIds();
-  void  setIds(pgids);
+  void setIds(pgids);
+  void setPending(txid, pgids);
 
-private:
+  // private:
   /** @brief 将freelist中的ids以及pending全部拷贝到dst中 */
-  void copyAll(pgids &dst);
+  void copyAll(pgid *dst);
 
 private:
   // 已经可以被分配的空闲页
@@ -51,23 +53,25 @@ private:
 };
 
 /** @brief 有序合并a, b到dst */
-void MergePgids(const pgids &a, const pgids &b, pgids &dst) {
-  int i = 0, j = 0;
+void MergePgids(const pgids &a, const pgids &b, pgid *dst) {
+  int i = 0, j = 0, k = 0;
 
   while (i < a.size() && j < b.size()) {
     if (a[i] < b[j]) {
-      dst.push_back(a[i]);
+      dst[k++] = a[i];
       i++;
     } else {
-      dst.push_back(b[j]);
+      dst[k++] = b[j];
       j++;
     }
   }
   while (i < a.size()) {
-    dst.push_back(a[i++]);
+    dst[k++] = a[i];
+    i++;
   }
   while (j < b.size()) {
-    dst.push_back(b[j++]);
+    dst[k++] = b[j];
+    j++;
   }
 }
 } // namespace BoomDB

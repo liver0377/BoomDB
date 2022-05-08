@@ -9,6 +9,10 @@ Freelist::Freelist() {}
 pgids Freelist::getPending(txid tid) { return pending[tid]; }
 pgids Freelist::getIds() { return ids; }
 void Freelist::setIds(pgids page_ids) { ids = page_ids; }
+void Freelist::setPending(txid tid, pgids pids) {
+  pending.erase(tid);
+  pending[tid] = pids;
+}
 
 /** @brief 返回freelist 中的page个数 */
 int Freelist::getCount() { return getfreeCount() + getPendingCount(); }
@@ -30,7 +34,7 @@ int Freelist::getPendingCount() {
  *
  * @param dst[out] 结果序列
  */
-void Freelist::copyAll(pgids &dst) {
+void Freelist::copyAll(pgid *dst) {
   pgids tmp;
   // pendings是一个pgids为value的map
   for (auto &list : pending) {
@@ -50,22 +54,24 @@ void Freelist::copyAll(pgids &dst) {
  * @param p 指定page
  */
 void Freelist::Write(Page *p) {
-  uint16 count = p->get_count();
+  uint16 count = getCount();
 
   p->set_flags(PageFlags::FREE_LIST_PAGE);
+
   if (count == 0) {
     p->set_count(count);
   } else if (count < 0xFFFF) {
     p->set_count(count);
     // 将ids以及pending拷贝到Page的数据部分
-    auto data = reinterpret_cast<std::vector<pgid> *>(p->get_ptr());
-    copyAll(*data);
+    auto data = reinterpret_cast<pgid *>(&(p->get_ptr()));
+    copyAll(data);
   } else {
     // 在data指向的第一个id区块记录元素个数
     p->set_count(0xFFFF);
-    auto data = reinterpret_cast<std::vector<pgid> *>(
-        static_cast<uint64>(p->get_ptr()) + 1);
-    copyAll(*data);
+    auto data = reinterpret_cast<pgid *>(&(p->get_ptr()));
+    data[0] = count;
+    auto data_1 = reinterpret_cast<pgid *>(&(p->get_ptr())) + 1;
+    copyAll(data_1);
   }
 }
 
@@ -78,18 +84,17 @@ void Freelist::Read(Page *p) {
   int count = p->get_count();
 
   if (count == 0xFFFF) {
-    auto data = reinterpret_cast<pgid *>(static_cast<uint64>(p->get_ptr()) + 1);
+    auto data = reinterpret_cast<pgid *>(&(p->get_ptr()));
     count = static_cast<int>(*data);
-  } else if (count == 0) {
+  }
+  if (count == 0) {
     ids = {};
   } else {
     for (int i = 0; i < count; i++) {
-      auto data =
-          reinterpret_cast<pgid *>(static_cast<uint64>(p->get_ptr()) + i);
+      auto data = reinterpret_cast<pgid *>(&(p->get_ptr())) + i;
       ids.push_back(*data);
-      // 感觉没有必要
-      std::sort(ids.begin(), ids.end());
     }
+    std::sort(ids.begin(), ids.end());
   }
 }
 
@@ -220,8 +225,13 @@ void Freelist::Release(txid tid) {
   }
   std::sort(pending_ids.begin(), pending_ids.end());
   // 有序合并旧ids与pending_ids
-  MergePgids(ids, pending_ids, new_ids);
+  pgid *p = new pgid[ids.size() + pending_ids.size()];
+  MergePgids(ids, pending_ids, p);
+  for (int i = 0; i < ids.size() + pending_ids.size(); i++) {
+    new_ids.push_back(p[i]);
+  }
   ids = new_ids;
+  delete p;
 }
 
 /**
